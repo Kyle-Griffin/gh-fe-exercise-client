@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useReducer } from 'react'
 
 type cartType = {
 	id: number
@@ -43,7 +43,7 @@ export default function Products() {
 				setCart([...cart, { id: product.id, quantity: 1 }]),
 			)
 		} else {
-			let cartProductQuantity = cart.find((cartItem) => cartItem.id === product.id)?.quantity || 1
+			let cartProductQuantity = cart.find((cartItem) => cartItem.id === product.id)?.quantity || 0
 			let amendCartRequestPayload = {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
@@ -55,22 +55,18 @@ export default function Products() {
 			}
 
 			fetch(
-				`https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/orders/:${cart.id}`,
+				`https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/orders/:${product.id}`,
 				amendCartRequestPayload,
-			)
-			/* .then(() => {
-                        if (cartProductQuantity > 1) {
-                              setCart(() => {
-                                    let amendedCart = cart.forEach(cartItem => {
-                                          return {
-                                                id: cartItem.id,
-                                                quantity: cartProductQuantity
-                                          }
-                                    })
-
-                                    return amendedCart;
-                        }
-                  }}) */
+			).then(() => {
+				let amendedCart = () => {
+					return cart.map((cartItem) => {
+						if (cartItem.id === product.id) {
+							cartItem.quantity = cartProductQuantity
+						}
+					})
+				}
+				setCart(amendedCart)
+			})
 		}
 	}
 
