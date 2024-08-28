@@ -1,4 +1,5 @@
 import { useState, useEffect, useReducer } from 'react'
+import { useCartStore } from '~/stores/cartStore'
 
 type cartType = {
 	id: number
@@ -24,12 +25,14 @@ type categoriesType = {
 }
 
 export default function Products() {
-	const [cart, setCart] = useState<cartType[]>([])
 	const [products, setProducts] = useState<productType[]>([])
 	const [categories, setCategories] = useState<categoriesType[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [productsError, setProductsError] = useState(false)
 	const [categoriesError, setCategoriesError] = useState(false)
+
+	const cart = useCartStore((state: any) => state.cart)
+	const updateCart = useCartStore((state: any) => state.updateCart)
 
 	function handleAddToCart(product: productType) {
 		if (!cart.length) {
@@ -40,10 +43,11 @@ export default function Products() {
 			}
 
 			fetch('https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/orders', newCartRequestPayload).then(() =>
-				setCart([...cart, { id: product.id, quantity: 1 }]),
+				// setCart([...cart, { id: product.id, quantity: 1 }])
+				updateCart({ id: product.id, quantity: 1 }),
 			)
 		} else {
-			let cartProductQuantity = cart.find((cartItem) => cartItem.id === product.id)?.quantity || 0
+			let cartProductQuantity = cart.find((cartItem: any) => cartItem.id === product.id)?.quantity || 0
 			let amendCartRequestPayload = {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
@@ -59,20 +63,20 @@ export default function Products() {
 				amendCartRequestPayload,
 			).then(() => {
 				let amendedCart = () => {
-					return cart.map((cartItem) => {
+					return cart.map((cartItem: any) => {
 						if (cartItem.id === product.id) {
 							cartItem.quantity = cartProductQuantity
 						}
 					})
 				}
-				setCart(amendedCart)
+				updateCart(amendedCart)
 			})
 		}
 	}
 
 	useEffect(() => {
 		const getProducts = async () => {
-			return await fetch('https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/products')
+			return await fetch('https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/products?norandom')
 				.then((data) => data.json())
 				.then((data) => setProducts(data))
 				.then(() => {
@@ -87,7 +91,7 @@ export default function Products() {
 		}
 
 		const getCategories = async () => {
-			return await fetch('https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/categories')
+			return await fetch('https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/categories?norandom')
 				.then((data) => data.json())
 				.then((data) => setCategories(data))
 				.then(() => {
