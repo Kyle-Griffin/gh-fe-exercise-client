@@ -1,4 +1,4 @@
-import { useState, useEffect, useReducer } from 'react'
+import { useState, useEffect } from 'react'
 import { useCartStore } from '~/stores/cartStore'
 
 type cartType = {
@@ -34,7 +34,7 @@ export default function Products() {
 	const cart = useCartStore((state: any) => state.cart)
 	const updateCart = useCartStore((state: any) => state.updateCart)
 
-	function handleAddToCart(product: productType) {
+	async function handleAddToCart(product: productType) {
 		if (!cart.length) {
 			let newCartRequestPayload = {
 				method: 'POST',
@@ -42,9 +42,10 @@ export default function Products() {
 				body: JSON.stringify({ products: [{ id: product.id, quantity: 1 }] }),
 			}
 
-			fetch('https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/orders', newCartRequestPayload).then(() =>
-				// setCart([...cart, { id: product.id, quantity: 1 }])
-				updateCart({ id: product.id, quantity: 1 }),
+			await fetch('https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/orders', newCartRequestPayload).then(
+				() =>
+					// setCart([...cart, { id: product.id, quantity: 1 }])
+					updateCart({ id: product.id, quantity: 1 }),
 			)
 		} else {
 			let cartProductQuantity = cart.find((cartItem: any) => cartItem.id === product.id)?.quantity || 0
@@ -58,18 +59,19 @@ export default function Products() {
 				}),
 			}
 
-			fetch(
+			await fetch(
 				`https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/orders/:${product.id}`,
 				amendCartRequestPayload,
 			).then(() => {
-				let amendedCart = () => {
+				/* let amendedCart = () => {
 					return cart.map((cartItem: any) => {
 						if (cartItem.id === product.id) {
 							cartItem.quantity = cartProductQuantity
 						}
 					})
-				}
-				updateCart(amendedCart)
+				} */
+
+				updateCart({ id: product.id, quantity: cartProductQuantity })
 			})
 		}
 	}

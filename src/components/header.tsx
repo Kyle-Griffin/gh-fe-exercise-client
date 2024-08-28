@@ -18,7 +18,9 @@ export default function Header() {
 					<Link href="/products">Products</Link>
 				</li>
 			</ul>
-			<div className="cart-icon">Cart ({getCartAmount()})</div>
+			<div className="cart-icon">
+				<Link href="/cart">Cart ({getCartAmount()})</Link>
+			</div>
 		</header>
 	)
 }
