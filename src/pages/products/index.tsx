@@ -24,12 +24,17 @@ type categoriesType = {
 	products: Array<productType>
 }
 
+type orderIdType = {
+	id: number
+}
+
 export default function Products() {
 	const [products, setProducts] = useState<productType[]>([])
 	const [categories, setCategories] = useState<categoriesType[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [productsError, setProductsError] = useState(false)
 	const [categoriesError, setCategoriesError] = useState(false)
+	const [orderId, setOrderId] = useState<orderIdType>(0)
 
 	const cart = useCartStore((state: any) => state.cart)
 	const updateCart = useCartStore((state: any) => state.updateCart)
@@ -43,7 +48,7 @@ export default function Products() {
 			}
 
 			await fetch('https://gh-fe-exercise-api-4f80a724b506.herokuapp.com/api/orders', newCartRequestPayload).then(
-				() =>
+				(data) =>
 					// setCart([...cart, { id: product.id, quantity: 1 }])
 					updateCart({ id: product.id, quantity: 1 }),
 			)
